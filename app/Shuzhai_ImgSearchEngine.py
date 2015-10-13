@@ -4,6 +4,7 @@ from flask import Flask
 from flask import jsonify
 import requests
 import json
+from flask import render_template
 
 app = Flask(__name__)
 
@@ -13,15 +14,25 @@ imgSearchUrl = "http://image.baidu.com/i?tn=baiduimagejson&ct=201326592&cl=2&lm=
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template('query.html', name='')
 
 @app.route('/query/<queryText>')
 def queryText(queryText):
     finalSearchURL = imgSearchUrl+queryText
     r = requests.get(finalSearchURL)
     d = json.loads(r.text)
-    return jsonify(d, status_code=201)
+    listingArray = d['data']
+    imgList =  list(map(getImgArray, listingArray))
+    return json.dumps(imgList)
 
+
+
+
+def getImgArray(x):
+    if x.has_key('middleURL'):
+        return x['middleURL']
+    else:
+        return ""
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
