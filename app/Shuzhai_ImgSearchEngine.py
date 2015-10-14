@@ -8,7 +8,7 @@ from flask import render_template
 
 app = Flask(__name__)
 
-defalutResultNumber = 10
+defalutResultNumber = 20
 queryText = ''
 imgSearchUrl = "http://image.baidu.com/i?tn=baiduimagejson&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1349413075627_R&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&rn=%s&pn=1&ie=utf-8&word=%s"
 
@@ -28,7 +28,7 @@ def queryText(queryText):
     d = json.loads(r.text)
     listingArray = d['data']
     imgList =  list(map(getImgArray, listingArray))
-    return json.dumps(imgList)
+    return render_template('queryImg.html', imgArray=imgList)
 
 
 

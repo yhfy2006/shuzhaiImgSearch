@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>QueryImg</title>
+</head>
+<body>
+    <h1>搜索结果</h1>
+    <ul id="navigation">
+    {% for item in imgArray %}
+        <li><img src="{{ item }}" alt="Smiley face">
+    {% endfor %}
+    </ul>
+</body>
+</html>
