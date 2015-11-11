@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 from flask import Flask
 from flask import request
+from flask import jsonify
 import requests
 import json
 from flask import render_template
@@ -20,6 +21,22 @@ finalSearchUrl = ''
 def hello_world():
     return render_template('query.html', name='')
 
+@app.route('/queryJson/<queryText>')
+def queryAndJson(queryText):
+    rn = request.args.get('pc')
+    resultList = []
+    if rn is  None:
+        rn = 20
+    else:
+        rn = int(rn.decode('utf-8'))
+
+    resultList =  processRequestHaosou_Json(rn,queryText) + processRequsetSougou_Json(rn,queryText)
+    dictResult = {}
+    dictResult["count"] = len(resultList)
+    dictResult["items"] = resultList
+
+    return jsonify(**dictResult)
+
 @app.route('/query/<queryText>')
 def queryText(queryText):
     rn = request.args.get('pc')
@@ -32,6 +49,45 @@ def queryText(queryText):
     resultList = resultList+processRequestSougou(rn,queryText)+processRequestHaosou(rn,queryText)
 
     return render_template('queryImg.html', imgArray=resultList,searchUrl = finalSearchUrl)
+
+def processRequsetSougou_Json(pn,queryText):
+    finalSearchUrl = imgSearchSougou.format(queryText.encode('utf-8'))
+    r = requests.get(finalSearchUrl)
+    d = json.loads(r.text)
+    listingArray = d['items']
+    resultList = []
+    for object in listingArray:
+        dict = sougouToDict(object)
+        resultList.append(dict)
+    return resultList
+
+def processRequestHaosou_Json(pn,queryText):
+    finalSearchUrl = imgSearchHaosou.format(queryText.encode('utf-8'),str(pn))
+    r = requests.get(finalSearchUrl)
+    d = json.loads(r.text)
+    listingArray = d['list']
+    resultList = []
+    for object in listingArray:
+        dict = haosouToDict(object)
+        resultList.append(dict)
+    return resultList
+
+def sougouToDict(sougouDict):
+    dict = {}
+    dict['width'] = sougouDict['width']
+    dict['height'] = sougouDict['height']
+    dict['url'] = sougouDict['pic_url']
+    dict['text'] = sougouDict['surr2']
+    return dict
+
+def haosouToDict(haosouDict):
+    dict = {}
+    dict['width'] = haosouDict['width']
+    dict['height'] = haosouDict['height']
+    dict['url'] = haosouDict['img']
+    dict['text'] = haosouDict['title']
+    return dict
+
 
 def processRequestSougou(pn,queryText):
     finalSearchUrl = imgSearchSougou.format(queryText.encode('utf-8'))
