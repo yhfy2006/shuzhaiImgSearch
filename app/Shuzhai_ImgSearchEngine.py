@@ -3,6 +3,7 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask import after_this_request
 import requests
 import json
 from flask import render_template
@@ -34,6 +35,11 @@ def queryAndJson(queryText):
     dictResult = {}
     dictResult["count"] = len(resultList)
     dictResult["items"] = resultList
+
+    @after_this_request
+    def add_header(response):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
 
     return jsonify(**dictResult)
 
